@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTW Berlin - Cloud & Parallel Computing - Photo Album</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --card-bg: #ffffff;
+            --card-border: #e5e7eb;
+            --accent: #76B900;
+            --accent-hover: #5d9300;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Upload Form Section */
+        .upload-section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        .upload-form {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .input-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            height: 46px;
+            box-sizing: border-box;
+        }
+
+        input[type="file"] {
+            padding: 0.4rem;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(118, 185, 0, 0.2);
+        }
+
+        /* File input styling */
+        input[type="file"]::file-selector-button {
+            background: var(--bg-color);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin-right: 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            height: 100%;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #e5e7eb;
+        }
+
+        button[type="submit"] {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            height: 46px;
+            /* Match input height */
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(118, 185, 0, 0.3);
+        }
+
+        button[type="submit"]:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(118, 185, 0, 0.4);
+        }
+
+        /* Gallery Grid */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .photo-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border-color: var(--card-border);
+        }
+
+        .photo-container {
+            width: 100%;
+            padding-top: 75%;
+            /* 4:3 Aspect Ratio */
+            position: relative;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+
+        .photo-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .photo-card:hover .photo-container img {
+            transform: scale(1.05);
+        }
+
+        .photo-info {
+            padding: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .photo-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 1rem;
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+            text-decoration: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background 0.2s;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.2s ease;
+        }
+
+        .photo-card:hover .delete-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .delete-btn:hover {
+            background: var(--danger-hover);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 5rem 0;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            color: var(--text-main);
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>HTW Berlin - Cloud & Parallel Computing</h1>
+            <p class="subtitle">Photo Album Dashboard</p>
+        </header>
+
+        <section class="upload-section">
+            <form class="upload-form" action="{{insert_url}}" enctype="multipart/form-data" method="POST">
+                <div class="input-group">
+                    <label for="title">Photo Title</label>
+                    <input type="text" id="title" name="title" placeholder="e.g. A beautiful sunset..." required>
+                </div>
+                <div class="input-group">
+                    <label for="photo">Select Image</label>
+                    <input type="file" id="photo" name="photo" accept="image/*" required>
+                </div>
+                <button type="submit">Upload Photo</button>
+            </form>
+        </section>
+
+        <section class="gallery">
+            {% for p in photos %}
+            <div class="photo-card">
+                <div class="photo-container">
+                    {% if p.photo_url %}
+                    <a href="{{ p.photo_url }}" target="_blank">
+                        <img src="{{ p.thumbnail_url }}" alt="{{ p.title }}">
+                    </a>
+                    {% else %}
+                    <div
+                        style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                        <span style="color:var(--text-muted)">No Image Source</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="photo-info">
+                    <span class="photo-title" title="{{p.title}}">{{p.title}}</span>
+                    <a class="delete-btn" href="{{ delete_url }}?{{ {'id': p.id} | urlencode() }}">Delete</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <h3>No photos found</h3>
+                <p>Start your album by uploading a new photo above.</p>
+            </div>
+            {% endfor %}
+        </section>
+    </div>
+</body>
+
+</html>
